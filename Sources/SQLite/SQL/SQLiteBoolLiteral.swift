@@ -17,7 +17,7 @@ public enum SQLiteBoolLiteral: SQLBoolLiteral {
     case _false
     
     /// See `SQLSerializable`.
-    public func serialize(_ binds: inout [Encodable]) -> String {
+    public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
         switch self {
         case ._false: return "0"
         case ._true: return "1"

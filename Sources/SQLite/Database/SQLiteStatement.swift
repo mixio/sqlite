@@ -1,3 +1,5 @@
+import JJTools
+
 #if os(Linux)
 import CSQLite
 #else
@@ -88,14 +90,20 @@ internal struct SQLiteStatement {
 
         
         var row: [SQLiteColumn: SQLiteData] = [:]
-        
+        jjprint(columns)
         // iterator over column count again and create a field
         // for each column. Use the column we have already initialized.
         for i in 0..<Int32(columns.count) {
-            let col = columns[Int(i)]
-            row[col] = try data(at: i)
-        }
-        
+            var col = columns[Int(i)]
+            let colData = try data(at: i)
+            while row[col] != nil {
+                col.occurrence = col.occurrence + 1
+            }
+            row[col] = colData
+            //jjprint(col, colData)
+       }
+        jjprint(row)
+
         // return to event loop
         return row
     }
@@ -147,13 +155,24 @@ internal struct SQLiteStatement {
         guard let nameRaw = sqlite3_column_name(c, offset) else {
             throw SQLiteError(problem: .error, reason: "Unexpected nil column name", source: .capture())
         }
+        var name = String(cString: nameRaw)
+
         let table: String?
-        if let tableNameRaw = sqlite3_column_table_name(c, offset) {
-            table = String(cString: tableNameRaw)
-        } else {
-            table = nil
+        let parts = name.split(separator: ".")
+        switch parts.count {
+        case 1:
+            if let tableNameRaw = sqlite3_column_table_name(c, offset) {
+                table = String(cString: tableNameRaw)
+            } else {
+                table = nil
+            }
+        case 2:
+            table = String(parts[0])
+            name = String(parts[1])
+        default:
+            throw SQLiteError(problem: .error, reason: "Unexpected column name: '\(name)'.", source: .capture())
         }
-        let name = String(cString: nameRaw)
+
         return .init(table: table, name: name)
     }
 }

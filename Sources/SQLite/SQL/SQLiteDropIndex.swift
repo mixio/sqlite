@@ -4,7 +4,7 @@ public struct SQLiteDropIndex: SQLDropIndex {
     public var identifier: SQLiteIdentifier
     
     /// See `SQLSerializable`.
-    public func serialize(_ binds: inout [Encodable]) -> String {
+    public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
         var sql: [String] = []
         sql.append("DROP INDEX")
         sql.append(identifier.serialize(&binds))

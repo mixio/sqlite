@@ -12,9 +12,9 @@ let package = Package(
 
         // 🗄 Core services for creating database integrations.
         .package(url: "https://github.com/vapor/database-kit.git", from: "1.2.0"),
-        
+
         // *️⃣ Build SQL queries in Swift. Extensible, protocol-based design that supports DQL, DML, and DDL.
-        .package(url: "https://github.com/vapor/sql.git", from: "2.0.2"),
+        .package(url: "https://github.com/mixio/sql.git", from: "table-aliases-and-resultset-occurrences"),
     ],
     targets: [
         .testTarget(name: "SQLiteTests", dependencies: ["SQLite", "SQLBenchmark"]),

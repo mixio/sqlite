@@ -19,6 +19,7 @@ import SQLite3
 ///         .run().wait()
 ///
 public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQueryable, SQLConnection {
+
     /// See `DatabaseConnection`.
     public typealias Database = SQLiteDatabase
     
@@ -63,6 +64,15 @@ public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQu
     /// See `SQLConnection`.
     public func decode<D>(_ type: D.Type, from row: [SQLiteColumn : SQLiteData], table: GenericSQLTableIdentifier<SQLiteIdentifier>?) throws -> D where D : Decodable {
         return try SQLiteRowDecoder().decode(D.self, from: row, table: table)
+    }
+
+    /// See `SQLConnection`.
+    public func decode<D>(_ type: D.Type, from row: [SQLiteColumn : SQLiteData], table: GenericSQLTableIdentifier<SQLiteIdentifier>?, occurrence: UInt = 1) throws -> D where D : Decodable {
+        guard let tableString = table?.identifier.string else {
+            throw SQLiteError(problem: .error, reason: "Invalid table: \(String(describing: table)).", source: .capture())
+        }
+        let requested_row = row.filter { $0.key.table == tableString && $0.key.occurrence == occurrence }
+        return try SQLiteRowDecoder().decode(D.self, from: requested_row, table: table)
     }
     
     /// Executes the supplied `SQLiteQuery` on the connection, calling the supplied closure for each row returned.

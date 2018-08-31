@@ -20,7 +20,7 @@ public struct SQLiteAlterTable: SQLAlterTable {
         case addColumn(SQLiteColumnDefinition)
 
         /// See `SQLSerializable`.
-        public func serialize(_ binds: inout [Encodable]) -> String {
+        public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
             var sql: [String] = []
             switch self {
             case .rename(let name):
@@ -70,7 +70,7 @@ public struct SQLiteAlterTable: SQLAlterTable {
     }
 
     /// See `SQLSerializable`.
-    public func serialize(_ binds: inout [Encodable]) -> String {
+    public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
         var sql: [String] = []
         sql.append("ALTER TABLE")
         sql.append(table.serialize(&binds))

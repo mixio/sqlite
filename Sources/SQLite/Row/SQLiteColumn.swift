@@ -6,6 +6,9 @@ public struct SQLiteColumn {
     /// The columns string name.
     public var name: String
 
+    // The occurrence of the column in a row.
+    public var occurrence: UInt = 1
+
     /// Create a new SQLite column from the name.
     public init(table: String? = nil, name: String) {
         self.table = table
@@ -36,9 +39,9 @@ extension SQLiteColumn: Hashable {
     /// See `Hashable`.
     public var hashValue: Int {
         if let table = table {
-            return table.hashValue &+ name.hashValue
+            return table.hashValue &+ name.hashValue &+ occurrence.hashValue
         } else {
-            return name.hashValue
+            return name.hashValue &+ occurrence.hashValue
         }
     }
 }
@@ -54,9 +57,9 @@ extension SQLiteColumn: CustomStringConvertible {
     /// See `CustomStringConvertible`.
     public var description: String {
         if let table = table {
-            return table + "." + name
+            return "\(table).\(occurrence).\(name)"
         } else {
-            return name
+            return "\(occurrence).\(name)"
         }
     }
 }

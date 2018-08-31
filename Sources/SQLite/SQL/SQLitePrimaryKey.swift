@@ -18,7 +18,7 @@ public enum SQLitePrimaryKeyDefault: SQLPrimaryKeyDefault {
     case autoIncrement
     
     /// See `SQLSerializable`.
-    public func serialize(_ binds: inout [Encodable]) -> String {
+    public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
         switch self {
         case .rowID: return ""
         case .autoIncrement: return "AUTOINCREMENT"
