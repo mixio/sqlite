@@ -14,7 +14,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/database-kit.git", from: "1.2.0"),
 
         // *️⃣ Build SQL queries in Swift. Extensible, protocol-based design that supports DQL, DML, and DDL.
-        .package(url: "https://github.com/mixio/sql.git", from: "table-aliases-and-resultset-occurrences"),
+        .package(url: "https://github.com/mixio/sql.git", .branch("table-aliases-and-resultset-occurrences")),
     ],
     targets: [
         .testTarget(name: "SQLiteTests", dependencies: ["SQLite", "SQLBenchmark"]),
