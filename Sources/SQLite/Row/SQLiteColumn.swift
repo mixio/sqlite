@@ -14,6 +14,12 @@ public struct SQLiteColumn {
         self.table = table
         self.name = name
     }
+
+    public func cloneIncrementingOccurrence() -> SQLiteColumn {
+        var clone = SQLiteColumn(table: self.table, name: self.name)
+        clone.occurrence = self.occurrence + 1
+        return clone
+    }
 }
 
 extension Dictionary where Key == SQLiteColumn {
@@ -39,9 +45,9 @@ extension SQLiteColumn: Hashable {
     /// See `Hashable`.
     public var hashValue: Int {
         if let table = table {
-            return table.hashValue &+ name.hashValue &+ occurrence.hashValue
+            return table.hashValue &+ occurrence.hashValue &+ name.hashValue
         } else {
-            return name.hashValue &+ occurrence.hashValue
+            return occurrence.hashValue  &+ name.hashValue
         }
     }
 }

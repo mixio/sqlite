@@ -19,7 +19,7 @@ internal struct SQLiteStatement {
         self.connection = connection
         self.c = c
     }
-    
+
     internal func bind(_ binds: [SQLiteData]) throws {
         for (i, bind) in binds.enumerated() {
             let i = Int32(i + 1)
@@ -71,7 +71,7 @@ internal struct SQLiteStatement {
 
         return columns
     }
-    
+
     internal func nextRow(for columns: [SQLiteColumn]) throws -> [SQLiteColumn: SQLiteData]? {
         // step over the query, this will continue to return SQLITE_ROW
         // for as long as there are new rows to be fetched
@@ -88,28 +88,30 @@ internal struct SQLiteStatement {
         default: throw SQLiteError(statusCode: step, connection: connection, source: .capture())
         }
 
-        
+
         var row: [SQLiteColumn: SQLiteData] = [:]
-        jjprint(columns)
+        row.reserveCapacity(columns.count)
         // iterator over column count again and create a field
         // for each column. Use the column we have already initialized.
         for i in 0..<Int32(columns.count) {
-            var col = columns[Int(i)]
-            let colData = try data(at: i)
-            while row[col] != nil {
-                col.occurrence = col.occurrence + 1
+            var column = columns[Int(i)]
+            let value = try data(at: i)
+            while row[column] != nil {
+                column = column.cloneIncrementingOccurrence()
+                jjprint(column, column.hashValue)
             }
-            row[col] = colData
-            //jjprint(col, colData)
-       }
+            row[column] = value
+            //jjprint(column, value)
+        }
+        //jjprint(row.keys.map { $0.hashValue })
         jjprint(row)
 
         // return to event loop
         return row
     }
-    
+
     // MARK: Private
-    
+
     private func data(at offset: Int32) throws -> SQLiteData {
         let type = try dataType(at: offset)
         switch type {
@@ -130,7 +132,7 @@ internal struct SQLiteStatement {
         case .blob:
             let blobPointer = sqlite3_column_blob(c, offset)
             let length = Int(sqlite3_column_bytes(c, offset))
-            
+
             let buffer = UnsafeBufferPointer(
                 start: blobPointer?.assumingMemoryBound(to: UInt8.self),
                 count: length
@@ -139,7 +141,7 @@ internal struct SQLiteStatement {
         case .null: return .null
         }
     }
-    
+
     private func dataType(at offset: Int32) throws -> SQLiteDataType {
         switch sqlite3_column_type(c, offset) {
         case SQLITE_INTEGER: return .integer
@@ -150,7 +152,7 @@ internal struct SQLiteStatement {
         default: throw SQLiteError(problem: .error, reason: "Unexpected column type.", source: .capture())
         }
     }
-    
+
     private func column(at offset: Int32) throws -> SQLiteColumn {
         guard let nameRaw = sqlite3_column_name(c, offset) else {
             throw SQLiteError(problem: .error, reason: "Unexpected nil column name", source: .capture())
