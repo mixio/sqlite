@@ -19,9 +19,10 @@ import SQLite3
 ///         .run().wait()
 ///
 public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQueryable, SQLConnection {
+
     /// See `DatabaseConnection`.
     public typealias Database = SQLiteDatabase
-    
+
     /// See `DatabaseConnection`.
     public var isClosed: Bool
 
@@ -51,7 +52,7 @@ public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQu
     public var lastAutoincrementID: Int64? {
         return sqlite3_last_insert_rowid(database.handle)
     }
-    
+
     /// Returns the last error message, if one exists.
     internal var errorMessage: String? {
         guard let raw = sqlite3_errmsg(database.handle) else {
@@ -59,12 +60,21 @@ public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQu
         }
         return String(cString: raw)
     }
-    
+
     /// See `SQLConnection`.
     public func decode<D>(_ type: D.Type, from row: [SQLiteColumn : SQLiteData], table: GenericSQLTableIdentifier<SQLiteIdentifier>?) throws -> D where D : Decodable {
         return try SQLiteRowDecoder().decode(D.self, from: row, table: table)
     }
-    
+
+    /// See `SQLConnection`.
+    public func decode<D>(_ type: D.Type, from row: [SQLiteColumn : SQLiteData], table: GenericSQLTableIdentifier<SQLiteIdentifier>?, occurrence: UInt = 1) throws -> D where D : Decodable {
+        guard let tableString = table?.identifier.string else {
+            throw SQLiteError(problem: .error, reason: "Invalid table: \(String(describing: table)).", source: .capture())
+        }
+        let requested_row = row.filter { $0.key.table == tableString && $0.key.occurrence == occurrence }
+        return try SQLiteRowDecoder().decode(D.self, from: requested_row, table: table)
+    }
+
     /// Executes the supplied `SQLiteQuery` on the connection, calling the supplied closure for each row returned.
     ///
     ///     try conn.query("SELECT * FROM users") { row in
@@ -104,7 +114,7 @@ public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQu
         }
         return promise.futureResult
     }
-    
+
     /// See `DatabaseConnection`.
     public func close() {
         isClosed = true
