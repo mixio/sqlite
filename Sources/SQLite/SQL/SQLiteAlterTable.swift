@@ -20,15 +20,15 @@ public struct SQLiteAlterTable: SQLAlterTable {
         case addColumn(SQLiteColumnDefinition)
 
         /// See `SQLSerializable`.
-        public func serialize(_ binds: inout [Encodable]) -> String {
+        public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
             var sql: [String] = []
             switch self {
             case .rename(let name):
                 sql.append("RENAME TO")
-                sql.append(name.serialize(&binds))
+                sql.append(name.serialize(&binds, aliases: aliases))
             case .addColumn(let columnDefinition):
                 sql.append("ADD")
-                sql.append(columnDefinition.serialize(&binds))
+                sql.append(columnDefinition.serialize(&binds, aliases: aliases))
             }
             return sql.joined(separator: " ")
         }
@@ -70,11 +70,11 @@ public struct SQLiteAlterTable: SQLAlterTable {
     }
 
     /// See `SQLSerializable`.
-    public func serialize(_ binds: inout [Encodable]) -> String {
+    public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
         var sql: [String] = []
         sql.append("ALTER TABLE")
-        sql.append(table.serialize(&binds))
-        sql.append(value.serialize(&binds))
+        sql.append(table.serialize(&binds, aliases: aliases))
+        sql.append(value.serialize(&binds, aliases: aliases))
         return sql.joined(separator: " ")
     }
 }

@@ -87,7 +87,7 @@ public final class SQLiteConnection: BasicWorker, DatabaseConnection, DatabaseQu
     /// - returns: A `Future` that signals completion of the query.
     public func query(_ query: SQLiteQuery, _ onRow: @escaping ([SQLiteColumn: SQLiteData]) throws -> ()) -> Future<Void> {
         var binds: [Encodable] = []
-        let sql = query.serialize(&binds)
+        let sql = query.serialize(&binds, aliases: nil)
         let promise = eventLoop.newPromise(Void.self)
         let data = try! binds.map { try SQLiteDataEncoder().encode($0) }
         // log before anything happens, in case there's an error

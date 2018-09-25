@@ -24,7 +24,7 @@ public enum SQLiteDataType: SQLDataType {
     case null
     
     /// See `SQLSerializable`.
-    public func serialize(_ binds: inout [Encodable]) -> String {
+    public func serialize(_ binds: inout [Encodable], aliases: SQLTableAliases?) -> String {
         switch self {
         case .integer: return "INTEGER"
         case .real: return "REAL"
