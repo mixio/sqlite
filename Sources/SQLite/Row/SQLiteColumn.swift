@@ -15,10 +15,15 @@ public struct SQLiteColumn {
         self.name = name
     }
 
-    public func cloneIncrementingOccurrence() -> SQLiteColumn {
-        var clone = SQLiteColumn(table: self.table, name: self.name)
-        clone.occurrence = self.occurrence + 1
-        return clone
+    /// Create a new SQLite column from existing column.
+    public init(column: SQLiteColumn) {
+        self.table = column.table
+        self.name = column.name
+        self.occurrence = column.occurrence
+    }
+
+    mutating public func incrementOccurrence() {
+        self.occurrence = occurrence + 1
     }
 }
 

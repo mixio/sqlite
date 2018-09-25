@@ -94,10 +94,10 @@ internal struct SQLiteStatement {
         // iterator over column count again and create a field
         // for each column. Use the column we have already initialized.
         for i in 0..<Int32(columns.count) {
-            var column = columns[Int(i)].copy()
+            var column = SQLiteColumn(column: columns[Int(i)])
             let value = try data(at: i)
             while row[column] != nil {
-                column = column.cloneIncrementingOccurrence()
+                column.incrementOccurrence()
                 jjprint(column, column.hashValue)
             }
             row[column] = value
